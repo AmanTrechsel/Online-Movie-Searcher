@@ -8,7 +8,7 @@
     Title="Online_Movie_Searcher">
 
     <ShellContent
-        Title="Home"
+        Title="Online Movie Searcher"
         ContentTemplate="{DataTemplate local:MainPage}"
         Route="MainPage" />
 

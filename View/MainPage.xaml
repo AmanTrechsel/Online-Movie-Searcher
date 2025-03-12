@@ -30,6 +30,14 @@
                 SemanticProperties.Hint="Counts the number of times you click"
                 Clicked="OnCounterClicked"
                 HorizontalOptions="Fill" />
+
+
+            <Button
+                x:Name="GetMovieBtn"
+                Text="Get Movie" 
+                SemanticProperties.Hint="Retrieves a movie"
+                Clicked="OnGetMovie"
+                HorizontalOptions="Fill" />
         </VerticalStackLayout>
     </ScrollView>
 
