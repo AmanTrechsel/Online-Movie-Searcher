@@ -1,47 +1,41 @@
-﻿using Online_Movie_Searcher.Classes.Movie;
+﻿using System.Collections.ObjectModel;
+using Online_Movie_Searcher.Classes.Movie;
 using Online_Movie_Searcher.Services;
 
 namespace Online_Movie_Searcher
 {
     public partial class MainPage : ContentPage
     {
-        int count = 0;
-
         public MainPage()
         {
             InitializeComponent();
         }
 
-        private void OnCounterClicked(object sender, EventArgs e)
+        private async void SearchMovie(object sender, EventArgs e)
         {
-            count++;
+            string searchTerm = SearchEntry.Text?.Trim();
+            if (string.IsNullOrEmpty(searchTerm))
+            {
+                await DisplayAlert("Fout", "Voer een titel in om te zoeken.", "OK");
+                return;
+            }
 
-            if (count == 1)
-                CounterBtn.Text = $"Clicked {count} time";
-            else
-                CounterBtn.Text = $"Clicked {count} times";
-
-            SemanticScreenReader.Announce(CounterBtn.Text);
+            try
+            {
+                string apiKey = await MovieService.GetKey();
+                List<MovieSearchResult> movies = await MovieService.GetMovieDataAsync(apiKey, searchTerm);
+                ShowSearchResults(movies);
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Fout", "Zoeken mislukt: " + ex.Message, "OK");
+            }
         }
 
-        // Retreives a default movie using the API.
-        private async void OnGetMovie(object sender, EventArgs e)
+        private void ShowSearchResults(List<MovieSearchResult> movies)
         {
-            // Update label
-            GetMovieBtn.Text = "Retreiving Movie";
-
-            // Get JSON data of the default movie
-            string movie_data = await MovieService.GetMovieJSON(await MovieService.GetKey());
-
-            // Update label
-            GetMovieBtn.Text = "Parsing Movie";
-
-            // Create a movie object with the JSON data.
-            Movie movie = Movie.FromJSON(movie_data);
-
-            // Update label
-            GetMovieBtn.Text = $"Movie: {movie.GetTitle()}";
+            MovieCollectionView.ItemsSource = movies;
         }
+
     }
-
 }

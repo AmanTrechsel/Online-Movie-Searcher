@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json.Nodes;
+using Online_Movie_Searcher.Classes.Movie;
 
 namespace Online_Movie_Searcher.Services
 {
@@ -30,18 +32,40 @@ namespace Online_Movie_Searcher.Services
             return api_key;
         }
 
-        public static async Task<string> GetMovieJSON(string key, string movie_id = "tt3896198")
+        public static async Task<List<MovieSearchResult>> GetMovieDataAsync(string key, string title)
         {
             // Build uri using parameters.
-            string uri = $"{REQUEST_URI}?i={movie_id}&apikey={key}";
-
-            // Request, if not success throws error.
+            string uri = $"{REQUEST_URI}?s={Uri.EscapeDataString(title)}&apikey={key}";
             HttpClient httpClient = new HttpClient();
             HttpResponseMessage response = await httpClient.GetAsync(uri);
             response.EnsureSuccessStatusCode();
+            string json = await response.Content.ReadAsStringAsync();
 
-            // Read GET data.
-            return await response.Content.ReadAsStringAsync();
+            JsonObject jsonObject = JsonNode.Parse(json).AsObject();
+
+            if (jsonObject["Response"]?.ToString() == "False")
+                throw new Exception(jsonObject["Error"]?.ToString());
+
+            var moviesJson = jsonObject["Search"].AsArray();
+
+            var movies = new List<MovieSearchResult>();
+            foreach (var item in moviesJson)
+            {
+                movies.Add(new MovieSearchResult
+                {
+                    Title = item["Title"]?.ToString() ?? "Onbekend",
+                    Year = item["Year"]?.ToString() ?? "Onbekend",
+                    imdbID = item["imdbID"]?.ToString(),
+                    Poster = item["Poster"]?.ToString()
+                });
+            }
+
+            return movies;
+        }
+
+        public static void GetMovieDetails(string key, string imdbID)
+        {
+            // Get full details of a single movie
         }
     }
 }
