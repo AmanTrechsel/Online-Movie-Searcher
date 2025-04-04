@@ -48,17 +48,17 @@ namespace Online_Movie_Searcher.Services
 
             var moviesJson = jsonObject["Search"].AsArray();
 
-            var movies = new List<MovieSearchResult>();
-            foreach (var item in moviesJson)
-            {
-                movies.Add(new MovieSearchResult
+            var movies = moviesJson
+                .Select(item => new MovieSearchResult
                 {
                     Title = item["Title"]?.ToString() ?? "Onbekend",
                     Year = item["Year"]?.ToString() ?? "Onbekend",
                     imdbID = item["imdbID"]?.ToString(),
                     Poster = item["Poster"]?.ToString()
-                });
-            }
+                })
+                .OrderBy(m => m.Title)
+                .ToList();
+
 
             return movies;
         }
