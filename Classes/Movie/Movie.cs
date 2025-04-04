@@ -13,8 +13,10 @@ namespace Online_Movie_Searcher.Classes.Movie
         private string title;
         private string year;
         private string rating;
+        private string runtime;
         private string actors;
         private string plot;
+        private string poster;
 
         public static Movie FromJSON(string json)
         {
@@ -24,20 +26,24 @@ namespace Online_Movie_Searcher.Classes.Movie
                 jsonObject["Title"]?.ToString() ?? "Onbekend",
                 jsonObject["Year"]?.ToString() ?? "Onbekend",
                 jsonObject["imdbRating"]?.ToString() ?? "Onbekend",
+                jsonObject["Runtime"]?.ToString() ?? "Onbekend",
                 jsonObject["Actors"]?.ToString() ?? "Onbekend",
-                jsonObject["Plot"]?.ToString() ?? "Geen plot beschikbaar"
+                jsonObject["Plot"]?.ToString() ?? "Geen plot beschikbaar",
+                jsonObject["Poster"]?.ToString() ?? "Onbekend"
             );
 
             return movie;
         }
 
-        public Movie(string title, string year, string rating, string actors, string plot)
+        public Movie(string title, string year, string rating, string runtime, string actors, string plot, string poster)
         {
             this.title = title;
             this.year = year;
             this.rating = rating;
+            this.runtime = runtime;
             this.actors = actors;
             this.plot = plot;
+            this.poster = poster;
         }
 
         public string GetTitle()
@@ -70,6 +76,16 @@ namespace Online_Movie_Searcher.Classes.Movie
             this.rating = rating;
         }
 
+        public string GetRuntime()
+        {
+            return this.runtime;
+        }
+
+        public void SetRuntime(string runtime)
+        {
+            this.runtime = runtime;
+        }
+
         public string GetActors()
         {
             return this.actors;
@@ -90,5 +106,14 @@ namespace Online_Movie_Searcher.Classes.Movie
             this.plot = plot;
         }
 
+        public string GetPoster()
+        {
+            return this.poster;
+        }
+
+        public void SetPoster(string poster)
+        {
+            this.poster = poster;
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using Online_Movie_Searcher.Classes.Movie;
 using Online_Movie_Searcher.Services;
+using Online_Movie_Searcher.View;
 
 namespace Online_Movie_Searcher
 {
@@ -37,5 +38,10 @@ namespace Online_Movie_Searcher
             MovieCollectionView.ItemsSource = movies;
         }
 
+        private async void OnMovieTapped(object sender, EventArgs e)
+        {
+            string imdbID = ((TapGestureRecognizer)((Frame)sender).GestureRecognizers[0]).CommandParameter.ToString();
+            await Navigation.PushAsync(new MovieDetailPage(imdbID));
+        }
     }
 }

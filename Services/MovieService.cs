@@ -63,9 +63,15 @@ namespace Online_Movie_Searcher.Services
             return movies;
         }
 
-        public static void GetMovieDetails(string key, string imdbID)
+        public static async Task<Movie> GetMovieDetailsAsync(string key, string imdbID)
         {
-            // Get full details of a single movie
+            string uri = $"{REQUEST_URI}?i={imdbID}&apikey={key}";
+            HttpClient httpClient = new HttpClient();
+            HttpResponseMessage response = await httpClient.GetAsync(uri);
+            response.EnsureSuccessStatusCode();
+            string json = await response.Content.ReadAsStringAsync();
+
+            return Movie.FromJSON(json);
         }
     }
 }

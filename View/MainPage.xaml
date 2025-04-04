@@ -47,6 +47,9 @@
                                HasShadow="True"
                                BackgroundColor="White"
                                Margin="5">
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnMovieTapped" CommandParameter="{Binding imdbID}"/>
+                            </Frame.GestureRecognizers>
 
                             <VerticalStackLayout HorizontalOptions="Center" Spacing="5">
                                 <Image Source="{Binding Poster}"
