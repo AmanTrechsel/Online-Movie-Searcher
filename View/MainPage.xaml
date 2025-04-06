@@ -5,7 +5,7 @@
              Title="Online Movie Searcher"
              BackgroundColor="#f0f0f0">
 
-    <ScrollView>
+    <ScrollView x:Name="ScrollView">
         <VerticalStackLayout Padding="15" Spacing="10">
 
             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">

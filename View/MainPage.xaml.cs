@@ -11,6 +11,7 @@ namespace Online_Movie_Searcher
         private int _currentPage = 1;
         private string _currentSearchTerm = "";
         private SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
+        private double _currentScrollPosition = 0;
 
 
         public MainPage()
@@ -56,6 +57,7 @@ namespace Online_Movie_Searcher
 
             try
             {
+                _currentScrollPosition = ScrollView.ScrollY;
                 _currentPage++;
                 LoadMoreButton.IsEnabled = false;
 
@@ -79,6 +81,7 @@ namespace Online_Movie_Searcher
             {
                 _semaphore.Release();
                 LoadMoreButton.IsEnabled = true;
+                ScrollView.ScrollToAsync(0, _currentScrollPosition, false);
             }
         }
 
