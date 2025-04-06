@@ -32,10 +32,10 @@ namespace Online_Movie_Searcher.Services
             return api_key;
         }
 
-        public static async Task<List<MovieSearchResult>> GetMovieDataAsync(string key, string title)
+        public static async Task<List<MovieSearchResult>> GetMovieDataAsync(string key, string title, int page = 1)
         {
             // Build uri using parameters.
-            string uri = $"{REQUEST_URI}?s={Uri.EscapeDataString(title)}&apikey={key}";
+            string uri = $"{REQUEST_URI}?s={Uri.EscapeDataString(title)}&page={page}&apikey={key}";
             HttpClient httpClient = new HttpClient();
             HttpResponseMessage response = await httpClient.GetAsync(uri);
             response.EnsureSuccessStatusCode();

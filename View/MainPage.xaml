@@ -74,6 +74,15 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
+            <Button x:Name="LoadMoreButton"
+                Text="Meer laden"
+                IsVisible="False"
+                Clicked="LoadMoreResults"
+                BackgroundColor="#007ACC"
+                TextColor="White"
+                CornerRadius="8"
+                HeightRequest="45"
+                Margin="0,10,0,20"/>
 
         </VerticalStackLayout>
     </ScrollView>

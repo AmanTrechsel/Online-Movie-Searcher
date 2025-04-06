@@ -7,6 +7,12 @@ namespace Online_Movie_Searcher
 {
     public partial class MainPage : ContentPage
     {
+        private ObservableCollection<MovieSearchResult> _allMovies = new();
+        private int _currentPage = 1;
+        private string _currentSearchTerm = "";
+        private SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
+
+
         public MainPage()
         {
             InitializeComponent();
@@ -23,15 +29,59 @@ namespace Online_Movie_Searcher
 
             try
             {
+                _currentSearchTerm = searchTerm;
+                _currentPage = 1;
+                _allMovies.Clear();
                 string apiKey = await MovieService.GetKey();
-                List<MovieSearchResult> movies = await MovieService.GetMovieDataAsync(apiKey, searchTerm);
-                ShowSearchResults(movies);
+                List<MovieSearchResult> movies = await MovieService.GetMovieDataAsync(apiKey, searchTerm, _currentPage);
+
+                foreach (var movie in movies)
+                    _allMovies.Add(movie);
+
+                MovieCollectionView.ItemsSource = _allMovies;
+                LoadMoreButton.IsVisible = movies.Count == 10;
             }
             catch (Exception ex)
             {
                 await DisplayAlert("Fout", "Zoeken mislukt: " + ex.Message, "OK");
             }
         }
+
+        private async void LoadMoreResults(object sender, EventArgs e)
+        {
+            // Avoid double clicks
+            if (!_semaphore.Wait(0)) {
+                return;
+            }
+
+            try
+            {
+                _currentPage++;
+                LoadMoreButton.IsEnabled = false;
+
+                string apiKey = await MovieService.GetKey();
+
+                // Use tpl to load without blocking the ui
+                var newMovies = await Task.Run(() =>
+                    MovieService.GetMovieDataAsync(apiKey, _currentSearchTerm, _currentPage)
+                );
+
+                foreach (var movie in newMovies)
+                    _allMovies.Add(movie);
+
+                LoadMoreButton.IsVisible = newMovies.Count == 10;
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Fout", "Laden mislukt: " + ex.Message, "OK");
+            }
+            finally
+            {
+                _semaphore.Release();
+                LoadMoreButton.IsEnabled = true;
+            }
+        }
+
 
         private void ShowSearchResults(List<MovieSearchResult> movies)
         {
