@@ -25,13 +25,11 @@ namespace Online_Movie_Searcher
 
         private void SearchBar_Focused(object sender, FocusEventArgs e)
         {
-            // Show search history when focusing the search bar
             SearchHistoryList.IsVisible = searchHistory.Any();
         }
 
         private void SearchBar_Unfocused(object sender, FocusEventArgs e)
         {
-            // Optionally hide search history when focus is lost
             SearchHistoryList.IsVisible = false;
         }
 
