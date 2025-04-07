@@ -5,118 +5,140 @@
              Title="Online Movie Searcher"
              BackgroundColor="#f0f0f0">
 
-	<ScrollView x:Name="ScrollView">
-		<VerticalStackLayout Padding="15" Spacing="10">
+    <AbsoluteLayout>
+        <ScrollView x:Name="ScrollView"
+            AbsoluteLayout.LayoutBounds="0,0,1,1"
+            AbsoluteLayout.LayoutFlags="All">
+            <VerticalStackLayout Padding="15" Spacing="10">
 
-			<Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
-				<VerticalStackLayout Padding="20">
-					<Entry x:Name="SearchEntry"
-                           Placeholder="Search by title..."
-                           BackgroundColor="White"
-                           TextColor="Black"
-                           HeightRequest="45"
-                           FontSize="14"
-                           Margin="0"
-                           Focused="SearchBar_Focused"
-                           Unfocused="SearchBar_Unfocused" />
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                    <VerticalStackLayout Padding="20">
+                        <Entry x:Name="SearchEntry"
+                               Placeholder="Search by title..."
+                               BackgroundColor="White"
+                               TextColor="Black"
+                               HeightRequest="45"
+                               FontSize="14"
+                               Margin="0"
+                               Focused="SearchBar_Focused"
+                               Unfocused="SearchBar_Unfocused" />
 
-					<CollectionView x:Name="SearchHistoryList"
-                                    IsVisible="False"
-                                    SelectionMode="Single"
-                                    BackgroundColor="White"
-                                    SelectionChanged="SearchHistoryList_SelectionChanged">
-						<CollectionView.ItemTemplate>
-							<DataTemplate>
-								<Label Text="{Binding}"
-                                       Padding="10"
-                                       TextColor="DarkSlateGray" />
-							</DataTemplate>
-						</CollectionView.ItemTemplate>
-					</CollectionView>
-				</VerticalStackLayout>
+                        <CollectionView x:Name="SearchHistoryList"
+                                        IsVisible="False"
+                                        SelectionMode="Single"
+                                        BackgroundColor="White"
+                                        SelectionChanged="SearchHistoryList_SelectionChanged">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Label Text="{Binding}"
+                                           Padding="10"
+                                           TextColor="DarkSlateGray" />
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
 
-				<Button Text="Search"
-                        Grid.Column="1"
-                        Clicked="SearchMovies"
-                        HeightRequest="45"
-                        Padding="20,0"
+                    <Button Text="Search"
+                            Grid.Column="1"
+                            Clicked="SearchMovies"
+                            HeightRequest="45"
+                            Padding="20,0"
+                            BackgroundColor="#007ACC"
+                            TextColor="White"
+                            CornerRadius="8" />
+                </Grid>
+
+                <Label
+                    x:Name="ElapsedLabel"
+                    TextColor="Black"/>
+
+                <!-- Sort picker -->
+                <Picker x:Name="SortPicker"
+                        Title="Sort by"
+                        SelectedIndexChanged="SortPicker_SelectedIndexChanged"
+                        BackgroundColor="White"
+                        TextColor="Black">
+                    <Picker.ItemsSource>
+                        <x:Array Type="{x:Type x:String}">
+                            <x:String>Title</x:String>
+                            <x:String>Year</x:String>
+                        </x:Array>
+                    </Picker.ItemsSource>
+                </Picker>
+
+                <!-- Movie grid -->
+                <CollectionView x:Name="MovieCollectionView"
+                                Margin="0"
+                                VerticalOptions="FillAndExpand"
+                                SelectionMode="None">
+
+                    <CollectionView.ItemsLayout>
+                        <GridItemsLayout Orientation="Vertical"
+                                         Span="{OnIdiom Default=2, Tablet=3, Desktop=3}"
+                                         HorizontalItemSpacing="10"
+                                         VerticalItemSpacing="10" />
+                    </CollectionView.ItemsLayout>
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Frame Padding="5"
+                                   CornerRadius="10"
+                                   HasShadow="True"
+                                   BackgroundColor="White"
+                                   Margin="5">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnMovieTapped" CommandParameter="{Binding imdbID}" />
+                                </Frame.GestureRecognizers>
+
+                                <VerticalStackLayout HorizontalOptions="Center" Spacing="5">
+                                    <Image Source="{Binding Poster}"
+                                           WidthRequest="140"
+                                           HeightRequest="200"
+                                           Aspect="AspectFill" />
+
+                                    <Label Text="{Binding Title}"
+                                           FontAttributes="Bold"
+                                           FontSize="14"
+                                           TextColor="Black"
+                                           HorizontalTextAlignment="Center"
+                                           LineBreakMode="TailTruncation"
+                                           MaxLines="2"/>
+
+                                    <Label Text="{Binding Year}"
+                                           FontSize="12"
+                                           TextColor="Gray"
+                                           HorizontalTextAlignment="Center"/>
+                                </VerticalStackLayout>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <!-- Load more button -->
+                <Button x:Name="LoadMoreButton"
+                        Text="Load more"
+                        IsVisible="False"
+                        Clicked="LoadMoreResults"
                         BackgroundColor="#007ACC"
                         TextColor="White"
-                        CornerRadius="8" />
-			</Grid>
+                        CornerRadius="8"
+                        HeightRequest="45"
+                        Margin="0,10,0,20"/>
+            </VerticalStackLayout>
+        </ScrollView>
 
-			<!-- Sort picker -->
-			<Picker x:Name="SortPicker"
-                    Title="Sort by"
-                    SelectedIndexChanged="SortPicker_SelectedIndexChanged"
-                    BackgroundColor="White"
-                    TextColor="Black">
-				<Picker.ItemsSource>
-					<x:Array Type="{x:Type x:String}">
-						<x:String>Title</x:String>
-						<x:String>Year</x:String>
-					</x:Array>
-				</Picker.ItemsSource>
-			</Picker>
-
-			<!-- Movie grid -->
-			<CollectionView x:Name="MovieCollectionView"
-                            Margin="0"
-                            VerticalOptions="FillAndExpand"
-                            SelectionMode="None">
-
-				<CollectionView.ItemsLayout>
-					<GridItemsLayout Orientation="Vertical"
-                                     Span="{OnIdiom Default=2, Tablet=3, Desktop=3}"
-                                     HorizontalItemSpacing="10"
-                                     VerticalItemSpacing="10" />
-				</CollectionView.ItemsLayout>
-
-				<CollectionView.ItemTemplate>
-					<DataTemplate>
-						<Frame Padding="5"
-                               CornerRadius="10"
-                               HasShadow="True"
-                               BackgroundColor="White"
-                               Margin="5">
-							<Frame.GestureRecognizers>
-								<TapGestureRecognizer Tapped="OnMovieTapped" CommandParameter="{Binding imdbID}" />
-							</Frame.GestureRecognizers>
-
-							<VerticalStackLayout HorizontalOptions="Center" Spacing="5">
-								<Image Source="{Binding Poster}"
-                                       WidthRequest="140"
-                                       HeightRequest="200"
-                                       Aspect="AspectFill" />
-
-								<Label Text="{Binding Title}"
-                                       FontAttributes="Bold"
-                                       FontSize="14"
-                                       TextColor="Black"
-                                       HorizontalTextAlignment="Center"
-                                       LineBreakMode="TailTruncation"
-                                       MaxLines="2"/>
-
-								<Label Text="{Binding Year}"
-                                       FontSize="12"
-                                       TextColor="Gray"
-                                       HorizontalTextAlignment="Center"/>
-							</VerticalStackLayout>
-						</Frame>
-					</DataTemplate>
-				</CollectionView.ItemTemplate>
-			</CollectionView>
-
-			<!-- Load more button -->
-			<Button x:Name="LoadMoreButton"
-                    Text="Load more"
-                    IsVisible="False"
-                    Clicked="LoadMoreResults"
-                    BackgroundColor="#007ACC"
-                    TextColor="White"
-                    CornerRadius="8"
-                    HeightRequest="45"
-                    Margin="0,10,0,20"/>
-		</VerticalStackLayout>
-	</ScrollView>
+        <StackLayout
+            x:Name="ActivityIndicatorLayout"
+            IsVisible="False"
+            AbsoluteLayout.LayoutBounds="0,0,1,1"
+            AbsoluteLayout.LayoutFlags="All"
+            BackgroundColor="Gray" Opacity="0.5">
+            <ActivityIndicator
+                x:Name="ActivityIndicator"
+                IsRunning="True"
+                HorizontalOptions="CenterAndExpand"
+                VerticalOptions="CenterAndExpand"
+                Color="Black"/>
+        </StackLayout>
+    </AbsoluteLayout>
 </ContentPage>

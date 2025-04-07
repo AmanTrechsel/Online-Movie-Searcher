@@ -8,7 +8,7 @@ namespace Online_Movie_Searcher.Classes.Movie
 {
     class MovieSearchHistory
     {
-        private string[] searchHistory;
+        //private string[] _searchHistory;
 
 
     }

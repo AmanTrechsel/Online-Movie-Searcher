@@ -15,6 +15,8 @@ namespace Online_Movie_Searcher.View
         {
             try
             {
+                ActivityIndicatorLayout.IsVisible = true;
+
                 string apiKey = await MovieService.GetKey();
                 Movie movie = await MovieService.GetMovieDetailsAsync(apiKey, imdbID);
 
@@ -31,6 +33,17 @@ namespace Online_Movie_Searcher.View
             {
                 await DisplayAlert("Fout", "Details laden mislukt: " + ex.Message, "OK");
             }
+            finally
+            {
+                ActivityIndicatorLayout.IsVisible = false;
+            }
+        }
+
+        private async void OnBackTapped(object sender, EventArgs e)
+        {
+            ActivityIndicatorLayout.IsVisible = true;
+            await Navigation.PopAsync();
+            ActivityIndicatorLayout.IsVisible = false;
         }
     }
 }

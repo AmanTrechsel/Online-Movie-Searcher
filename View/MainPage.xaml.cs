@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 using Online_Movie_Searcher.Classes.Movie;
 using Online_Movie_Searcher.Services;
 using Online_Movie_Searcher.View;
@@ -14,6 +15,7 @@ namespace Online_Movie_Searcher
         private SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
         private double _currentScrollPosition = 0;
         private List<string> searchHistory = new();
+        private int _results = 0;
 
         public MainPage()
         {
@@ -44,6 +46,10 @@ namespace Online_Movie_Searcher
 
             try
             {
+                _results = 0;
+                ActivityIndicatorLayout.IsVisible = true;
+                Stopwatch timer = new Stopwatch();
+                timer.Start();
                 _currentSearchTerm = searchTerm;
                 _currentPage = 1;
                 _allMovies.Clear();
@@ -52,21 +58,32 @@ namespace Online_Movie_Searcher
                 List<MovieSearchResult> movies = await MovieService.GetMovieDataAsync(apiKey, searchTerm, _currentPage, _currentSortOption);
 
                 foreach (var movie in movies)
+                {
                     _allMovies.Add(movie);
+                }
 
                 MovieCollectionView.ItemsSource = _allMovies;
+                _results = movies.Count;
                 LoadMoreButton.IsVisible = movies.Count == 10;
 
                 if (!searchHistory.Contains(searchTerm))
+                {
                     searchHistory.Insert(0, searchTerm);
+                }
 
                 SearchHistoryList.ItemsSource = null;
                 SearchHistoryList.ItemsSource = searchHistory;
                 SearchHistoryList.IsVisible = false;
+                timer.Stop();
+                ElapsedLabel.Text = $"Found {_results} results in {Math.Round(timer.Elapsed.TotalMilliseconds)}ms";
             }
             catch (Exception ex)
             {
                 await DisplayAlert("Error", "Search failed: " + ex.Message, "OK");
+            }
+            finally
+            {
+                ActivityIndicatorLayout.IsVisible = false;
             }
         }
 
@@ -77,6 +94,9 @@ namespace Online_Movie_Searcher
 
             try
             {
+                ActivityIndicatorLayout.IsVisible = true;
+                Stopwatch timer = new Stopwatch();
+                timer.Start();
                 _currentScrollPosition = ScrollView.ScrollY;
                 _currentPage++;
                 LoadMoreButton.IsEnabled = false;
@@ -87,9 +107,14 @@ namespace Online_Movie_Searcher
                 );
 
                 foreach (var movie in newMovies)
+                {
                     _allMovies.Add(movie);
+                }
 
+                _results += newMovies.Count;
                 LoadMoreButton.IsVisible = newMovies.Count == 10;
+                timer.Stop();
+                ElapsedLabel.Text = $"Found {_results} results in {Math.Round(timer.Elapsed.TotalMilliseconds)}ms";
             }
             catch (Exception ex)
             {
@@ -100,6 +125,7 @@ namespace Online_Movie_Searcher
                 _semaphore.Release();
                 LoadMoreButton.IsEnabled = true;
                 await ScrollView.ScrollToAsync(0, _currentScrollPosition, false);
+                ActivityIndicatorLayout.IsVisible = false;
             }
         }
 
@@ -132,7 +158,9 @@ namespace Online_Movie_Searcher
                 frame.GestureRecognizers.FirstOrDefault() is TapGestureRecognizer tapGesture &&
                 tapGesture.CommandParameter is string imdbID)
             {
+                ActivityIndicatorLayout.IsVisible = true;
                 await Navigation.PushAsync(new MovieDetailPage(imdbID));
+                ActivityIndicatorLayout.IsVisible = false;
             }
         }
 

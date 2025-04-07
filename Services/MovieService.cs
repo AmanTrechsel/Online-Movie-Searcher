@@ -52,8 +52,8 @@ namespace Online_Movie_Searcher.Services
                 {
                     Title = item["Title"]?.ToString() ?? "Unknown",
                     Year = item["Year"]?.ToString() ?? "Unknown",
-                    imdbID = item["imdbID"]?.ToString(),
-                    Poster = item["Poster"]?.ToString()
+                    imdbID = item["imdbID"]?.ToString() ?? "Unknown",
+                    Poster = item["Poster"]?.ToString() ?? "Unknown"
                 })
                 .AsParallel();
 
@@ -64,8 +64,7 @@ namespace Online_Movie_Searcher.Services
             };
 
             return movies.ToList();
-
-
+        }
 
         public static async Task<Movie> GetMovieDetailsAsync(string key, string imdbID)
         {
