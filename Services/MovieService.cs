@@ -32,10 +32,9 @@ namespace Online_Movie_Searcher.Services
             return api_key;
         }
 
-        public static async Task<List<MovieSearchResult>> GetMovieDataAsync(string key, string title, int page = 1)
+        public static async Task<List<MovieSearchResult>> GetMovieDataAsync(string key, string title, int page = 1, string sortBy = "Title")
         {
-            // Build uri using parameters.
-            string uri = $"{REQUEST_URI}?s={Uri.EscapeDataString(title)}&page={page}&apikey={key}";
+            string uri = $"{REQUEST_URI}?s={Uri.EscapeDataString(title)}&apikey={key}&page={page}";
             HttpClient httpClient = new HttpClient();
             HttpResponseMessage response = await httpClient.GetAsync(uri);
             response.EnsureSuccessStatusCode();
@@ -51,17 +50,22 @@ namespace Online_Movie_Searcher.Services
             var movies = moviesJson
                 .Select(item => new MovieSearchResult
                 {
-                    Title = item["Title"]?.ToString() ?? "Onbekend",
-                    Year = item["Year"]?.ToString() ?? "Onbekend",
+                    Title = item["Title"]?.ToString() ?? "Unknown",
+                    Year = item["Year"]?.ToString() ?? "Unknown",
                     imdbID = item["imdbID"]?.ToString(),
                     Poster = item["Poster"]?.ToString()
                 })
-                .OrderBy(m => m.Title)
-                .ToList();
+                .AsParallel();
+
+            movies = sortBy switch
+            {
+                "Year" => movies.OrderBy(m => m.Year),
+                _ => movies.OrderBy(m => m.Title)
+            };
+
+            return movies.ToList();
 
 
-            return movies;
-        }
 
         public static async Task<Movie> GetMovieDetailsAsync(string key, string imdbID)
         {

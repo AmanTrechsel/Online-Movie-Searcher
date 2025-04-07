@@ -10,10 +10,10 @@ namespace Online_Movie_Searcher
         private ObservableCollection<MovieSearchResult> _allMovies = new();
         private int _currentPage = 1;
         private string _currentSearchTerm = "";
+        private string _currentSortOption = "Title";
         private SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
         private double _currentScrollPosition = 0;
         private List<string> searchHistory = new();
-
 
         public MainPage()
         {
@@ -23,22 +23,22 @@ namespace Online_Movie_Searcher
 
         private void SearchBar_Focused(object sender, FocusEventArgs e)
         {
-            // Toon zoekgeschiedenis wanneer je op de zoekbalk klikt
+            // Show search history when focusing the search bar
             SearchHistoryList.IsVisible = searchHistory.Any();
         }
 
         private void SearchBar_Unfocused(object sender, FocusEventArgs e)
         {
-            // Optioneel: verberg lijst als je ergens anders klikt
+            // Optionally hide search history when focus is lost
             SearchHistoryList.IsVisible = false;
         }
 
-        private async void SearchMovie(object sender, EventArgs e)
+        private async void SearchMovies(object sender, EventArgs e)
         {
             string searchTerm = SearchEntry.Text?.Trim();
             if (string.IsNullOrEmpty(searchTerm))
             {
-                await DisplayAlert("Fout", "Voer een titel in om te zoeken.", "OK");
+                await DisplayAlert("Error", "Please enter a movie title to search.", "OK");
                 return;
             }
 
@@ -47,8 +47,9 @@ namespace Online_Movie_Searcher
                 _currentSearchTerm = searchTerm;
                 _currentPage = 1;
                 _allMovies.Clear();
+
                 string apiKey = await MovieService.GetKey();
-                List<MovieSearchResult> movies = await MovieService.GetMovieDataAsync(apiKey, searchTerm, _currentPage);
+                List<MovieSearchResult> movies = await MovieService.GetMovieDataAsync(apiKey, searchTerm, _currentPage, _currentSortOption);
 
                 foreach (var movie in movies)
                     _allMovies.Add(movie);
@@ -56,24 +57,23 @@ namespace Online_Movie_Searcher
                 MovieCollectionView.ItemsSource = _allMovies;
                 LoadMoreButton.IsVisible = movies.Count == 10;
 
-                searchHistory.Insert(0, searchTerm); 
+                if (!searchHistory.Contains(searchTerm))
+                    searchHistory.Insert(0, searchTerm);
+
                 SearchHistoryList.ItemsSource = null;
                 SearchHistoryList.ItemsSource = searchHistory;
-
                 SearchHistoryList.IsVisible = false;
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Fout", "Zoeken mislukt: " + ex.Message, "OK");
+                await DisplayAlert("Error", "Search failed: " + ex.Message, "OK");
             }
         }
 
         private async void LoadMoreResults(object sender, EventArgs e)
         {
-            // Avoid double clicks
-            if (!_semaphore.Wait(0)) {
+            if (!_semaphore.Wait(0))
                 return;
-            }
 
             try
             {
@@ -82,10 +82,8 @@ namespace Online_Movie_Searcher
                 LoadMoreButton.IsEnabled = false;
 
                 string apiKey = await MovieService.GetKey();
-
-                // Use tpl to load without blocking the ui
                 var newMovies = await Task.Run(() =>
-                    MovieService.GetMovieDataAsync(apiKey, _currentSearchTerm, _currentPage)
+                    MovieService.GetMovieDataAsync(apiKey, _currentSearchTerm, _currentPage, _currentSortOption)
                 );
 
                 foreach (var movie in newMovies)
@@ -95,26 +93,47 @@ namespace Online_Movie_Searcher
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Fout", "Laden mislukt: " + ex.Message, "OK");
+                await DisplayAlert("Error", "Loading more results failed: " + ex.Message, "OK");
             }
             finally
             {
                 _semaphore.Release();
                 LoadMoreButton.IsEnabled = true;
-                ScrollView.ScrollToAsync(0, _currentScrollPosition, false);
+                await ScrollView.ScrollToAsync(0, _currentScrollPosition, false);
             }
         }
 
-
-        private void ShowSearchResults(List<MovieSearchResult> movies)
+        private async void SortPicker_SelectedIndexChanged(object sender, EventArgs e)
         {
-            MovieCollectionView.ItemsSource = movies;
+            if (SortPicker.SelectedItem is string selectedSort)
+            {
+                _currentSortOption = selectedSort;
+
+                if (!string.IsNullOrEmpty(_currentSearchTerm))
+                {
+                    _currentPage = 1;
+                    _allMovies.Clear();
+
+                    string apiKey = await MovieService.GetKey();
+                    var movies = await MovieService.GetMovieDataAsync(apiKey, _currentSearchTerm, _currentPage, _currentSortOption);
+
+                    foreach (var movie in movies)
+                        _allMovies.Add(movie);
+
+                    MovieCollectionView.ItemsSource = _allMovies;
+                    LoadMoreButton.IsVisible = movies.Count == 10;
+                }
+            }
         }
 
         private async void OnMovieTapped(object sender, EventArgs e)
         {
-            string imdbID = ((TapGestureRecognizer)((Frame)sender).GestureRecognizers[0]).CommandParameter.ToString();
-            await Navigation.PushAsync(new MovieDetailPage(imdbID));
+            if (sender is Frame frame &&
+                frame.GestureRecognizers.FirstOrDefault() is TapGestureRecognizer tapGesture &&
+                tapGesture.CommandParameter is string imdbID)
+            {
+                await Navigation.PushAsync(new MovieDetailPage(imdbID));
+            }
         }
 
         private void SearchHistoryList_SelectionChanged(object sender, SelectionChangedEventArgs e)
