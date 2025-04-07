@@ -12,11 +12,25 @@ namespace Online_Movie_Searcher
         private string _currentSearchTerm = "";
         private SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
         private double _currentScrollPosition = 0;
+        private List<string> searchHistory = new();
 
 
         public MainPage()
         {
             InitializeComponent();
+            SearchHistoryList.ItemsSource = searchHistory;
+        }
+
+        private void SearchBar_Focused(object sender, FocusEventArgs e)
+        {
+            // Toon zoekgeschiedenis wanneer je op de zoekbalk klikt
+            SearchHistoryList.IsVisible = searchHistory.Any();
+        }
+
+        private void SearchBar_Unfocused(object sender, FocusEventArgs e)
+        {
+            // Optioneel: verberg lijst als je ergens anders klikt
+            SearchHistoryList.IsVisible = false;
         }
 
         private async void SearchMovie(object sender, EventArgs e)
@@ -41,6 +55,12 @@ namespace Online_Movie_Searcher
 
                 MovieCollectionView.ItemsSource = _allMovies;
                 LoadMoreButton.IsVisible = movies.Count == 10;
+
+                searchHistory.Insert(0, searchTerm); 
+                SearchHistoryList.ItemsSource = null;
+                SearchHistoryList.ItemsSource = searchHistory;
+
+                SearchHistoryList.IsVisible = false;
             }
             catch (Exception ex)
             {
@@ -95,6 +115,15 @@ namespace Online_Movie_Searcher
         {
             string imdbID = ((TapGestureRecognizer)((Frame)sender).GestureRecognizers[0]).CommandParameter.ToString();
             await Navigation.PushAsync(new MovieDetailPage(imdbID));
+        }
+
+        private void SearchHistoryList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.CurrentSelection.FirstOrDefault() is string selectedQuery)
+            {
+                SearchEntry.Text = selectedQuery;
+                SearchHistoryList.IsVisible = false;
+            }
         }
     }
 }

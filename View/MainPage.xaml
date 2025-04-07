@@ -9,23 +9,41 @@
         <VerticalStackLayout Padding="15" Spacing="10">
 
             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
-                <Entry x:Name="SearchEntry"
-                       Grid.Column="0"
-                       Placeholder="Zoek op titel..."
-                       BackgroundColor="White"
-                       TextColor="Black"
-                       HeightRequest="45"
-                       FontSize="14"
-                       Margin="5.0" />
+                <VerticalStackLayout Padding="20">
+                    <Entry x:Name="SearchEntry"
+                           Grid.Column="0"
+                           Placeholder="Zoek op titel..."
+                           BackgroundColor="White"
+                           TextColor="Black"
+                           HeightRequest="45"
+                           FontSize="14"
+                           Margin="0"
+                           Focused="SearchBar_Focused"
+                           Unfocused="SearchBar_Unfocused" />
+
+                    <CollectionView x:Name="SearchHistoryList"
+                                    IsVisible="False"
+                                    SelectionMode="Single"
+                                    BackgroundColor="White"
+                                    SelectionChanged="SearchHistoryList_SelectionChanged">      
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Label Text="{Binding}" 
+                                       Padding="10"                     
+                                       TextColor="DarkSlateGray" />
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
 
                 <Button Text="Zoek"
-                        Grid.Column="1"
-                        Clicked="SearchMovie"
-                        HeightRequest="45"
-                        Padding="20,0"
-                        BackgroundColor="#007ACC"
-                        TextColor="White"
-                        CornerRadius="8" />
+                            Grid.Column="1"
+                            Clicked="SearchMovie"
+                            HeightRequest="45"
+                            Padding="20,0"
+                            BackgroundColor="#007ACC"
+                            TextColor="White"
+                            CornerRadius="8" />
             </Grid>
 
             <CollectionView x:Name="MovieCollectionView"
