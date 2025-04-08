@@ -48,23 +48,35 @@
                             CornerRadius="8" />
                 </Grid>
 
-                <Label
-                    x:Name="ElapsedLabel"
-                    TextColor="Black"/>
+                <StackLayout Orientation="Horizontal"
+                             HorizontalOptions="Start"
+                             Spacing="5"
+                             Margin="5,0">
+                    <Label Text="Sort by:"
+                           VerticalOptions="Center"
+                           TextColor="Black"
+                           FontSize="14"/>
+                    <Picker x:Name="SortPicker"
+                            SelectedIndexChanged="SortPicker_SelectedIndexChanged"
+                            BackgroundColor="White"
+                            TextColor="Black"
+                            WidthRequest="120"
+                            FontSize="14"
+                            VerticalOptions="Center">
+                        <Picker.ItemsSource>
+                            <x:Array Type="{x:Type x:String}">
+                                <x:String>Title</x:String>
+                                <x:String>Year</x:String>
+                            </x:Array>
+                        </Picker.ItemsSource>
+                    </Picker>
+                </StackLayout>
 
-                <!-- Sort picker -->
-                <Picker x:Name="SortPicker"
-                        Title="Sort by"
-                        SelectedIndexChanged="SortPicker_SelectedIndexChanged"
-                        BackgroundColor="White"
-                        TextColor="Black">
-                    <Picker.ItemsSource>
-                        <x:Array Type="{x:Type x:String}">
-                            <x:String>Title</x:String>
-                            <x:String>Year</x:String>
-                        </x:Array>
-                    </Picker.ItemsSource>
-                </Picker>
+                <Label x:Name="ElapsedLabel"
+                       TextColor="Black"
+                       FontSize="14"
+                       HorizontalOptions="Start"
+                       Margin="5,0"/>
 
                 <!-- Movie grid -->
                 <CollectionView x:Name="MovieCollectionView"

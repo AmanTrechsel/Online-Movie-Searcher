@@ -10,24 +10,6 @@
             AbsoluteLayout.LayoutBounds="0,0,1,1"
             AbsoluteLayout.LayoutFlags="All">
             <VerticalStackLayout Padding="20" Spacing="10">
-                <Frame
-                    Padding="5"
-                    CornerRadius="10"
-                    HasShadow="True"
-                    BackgroundColor="#007ACC"
-                    Margin="5">
-                    <Frame.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="OnBackTapped"/>
-                    </Frame.GestureRecognizers>
-                    <Label Text="Back"
-                       FontAttributes="Bold"
-                       FontSize="14"
-                       TextColor="Black"
-                       HorizontalTextAlignment="Center"
-                       LineBreakMode="TailTruncation"
-                       MaxLines="2"/>
-                </Frame>
-
                 <Label x:Name="LabelTitle"
                        FontSize="24"
                        FontAttributes="Bold"
@@ -92,5 +74,24 @@
                 VerticalOptions="CenterAndExpand"
                 Color="Black"/>
         </StackLayout>
+
+        <Frame
+            Padding="5"
+            CornerRadius="20"
+            HasShadow="True"
+            BackgroundColor="#007ACC"
+            BorderColor="White"
+            AbsoluteLayout.LayoutBounds="10,10,40,40"
+            AbsoluteLayout.LayoutFlags="None">
+            <Frame.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnBackTapped"/>
+            </Frame.GestureRecognizers>
+            <Label Text="←"
+                FontSize="20"
+                FontAttributes="Bold"
+                TextColor="White"
+                HorizontalTextAlignment="Center"
+                VerticalTextAlignment="Center"/>
+        </Frame>
     </AbsoluteLayout>
 </ContentPage>
