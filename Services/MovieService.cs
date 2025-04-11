@@ -32,7 +32,7 @@ namespace Online_Movie_Searcher.Services
             return api_key;
         }
 
-        public static async Task<List<MovieSearchResult>> GetMovieDataAsync(string key, string title, int page = 1, string sortBy = "Title")
+        public static async Task<List<MovieSearchResult>> GetMovieDataAsync(string key, string title, int page = 1, string sortBy = "Title", bool suppressNotFound = false)
         {
             string uri = $"{REQUEST_URI}?s={Uri.EscapeDataString(title)}&apikey={key}&page={page}";
             HttpClient httpClient = new HttpClient();
@@ -43,7 +43,15 @@ namespace Online_Movie_Searcher.Services
             JsonObject jsonObject = JsonNode.Parse(json).AsObject();
 
             if (jsonObject["Response"]?.ToString() == "False")
-                throw new Exception(jsonObject["Error"]?.ToString());
+            {
+                string error = jsonObject["Error"]?.ToString();
+                if (suppressNotFound && error?.Contains("Movie not found!", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    return new List<MovieSearchResult>();
+                }
+
+                throw new Exception(error);
+            }
 
             var moviesJson = jsonObject["Search"].AsArray();
 

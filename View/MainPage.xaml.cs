@@ -51,20 +51,40 @@ namespace Online_Movie_Searcher
                 Stopwatch timer = new Stopwatch();
                 timer.Start();
                 _currentSearchTerm = searchTerm;
-                _currentPage = 1;
+                _currentPage = 10;
                 _allMovies.Clear();
 
                 string apiKey = await MovieService.GetKey();
-                List<MovieSearchResult> movies = await MovieService.GetMovieDataAsync(apiKey, searchTerm, _currentPage, _currentSortOption);
 
-                foreach (var movie in movies)
+                // Create 10 parallel tasks to fetch pages 1/10
+                var fetchTasks = Enumerable.Range(1, 10)
+                    .Select(page => MovieService.GetMovieDataAsync(apiKey, searchTerm, page, _currentSortOption, suppressNotFound: true))
+                    .ToArray();
+
+                var allResults = await Task.WhenAll(fetchTasks);
+
+                // Merge results into a single list
+                var mergeList = allResults
+                    .SelectMany(m => m)
+                    .AsParallel();
+
+                // Add movies to the _allMovies collection
+                foreach (var movie in mergeList)
                 {
                     _allMovies.Add(movie);
                 }
 
                 MovieCollectionView.ItemsSource = _allMovies;
-                _results = movies.Count;
-                LoadMoreButton.IsVisible = movies.Count == 10;
+                _results = _allMovies.Count;
+
+                // Show load more button only if there are more results to load
+                LoadMoreButton.IsVisible = _results > 0 && _results % 10 == 0;
+
+
+                if (_results == 0)
+                {
+                    await DisplayAlert("No results", "No movies found for your search.", "OK");
+                }
 
                 if (!searchHistory.Contains(searchTerm))
                 {
