@@ -17,6 +17,10 @@ namespace Online_Movie_Searcher
         private List<string> searchHistory = new();
         private int _results = 0;
 
+        private ObservableCollection<MovieSearchResult> _filteredMovies = new();
+        private int _minAvailableYear = 1900;
+        private int _maxAvailableYear = DateTime.Now.Year;
+
         public MainPage()
         {
             InitializeComponent();
@@ -74,7 +78,23 @@ namespace Online_Movie_Searcher
                     _allMovies.Add(movie);
                 }
 
-                MovieCollectionView.ItemsSource = _allMovies;
+                var yearList = _allMovies
+                    .Where(m => int.TryParse(m.Year, out _))
+                    .Select(m => int.Parse(m.Year))
+                    .ToList();
+
+                if (yearList.Any())
+                {
+                    _minAvailableYear = yearList.Min();
+                    _maxAvailableYear = yearList.Max();
+
+                    MinYearEntry.Text = _minAvailableYear.ToString();
+                    MaxYearEntry.Text = _maxAvailableYear.ToString();
+                    YearFilterLayout.IsVisible = true;
+                }
+
+                ApplyYearFilter();
+
                 _results = _allMovies.Count;
 
                 // Show load more button only if there are more results to load
@@ -164,7 +184,7 @@ namespace Online_Movie_Searcher
                     };
 
                     _allMovies = new ObservableCollection<MovieSearchResult>(sorted.ToList());
-                    MovieCollectionView.ItemsSource = _allMovies;
+                    ApplyYearFilter();
                 }
             }
         }
@@ -188,6 +208,41 @@ namespace Online_Movie_Searcher
                 SearchEntry.Text = selectedQuery;
                 SearchHistoryList.IsVisible = false;
             }
+        }
+
+        private void OnYearFilterChanged(object sender, TextChangedEventArgs e)
+        {
+            if ((MinYearEntry.Text?.Length ?? 0) >= 4 && (MaxYearEntry.Text?.Length ?? 0) >= 4)
+            {
+                ApplyYearFilter();
+            }
+        }
+
+        private void ApplyYearFilter()
+        {
+            if (!_allMovies.Any())
+            {
+                return;
+            }
+
+            bool minParsed = int.TryParse(MinYearEntry.Text, out int minYear);
+            bool maxParsed = int.TryParse(MaxYearEntry.Text, out int maxYear);
+
+            if (!minParsed)
+            {
+                minYear = _minAvailableYear;
+            }
+            if (!maxParsed)
+            {
+                maxYear = _maxAvailableYear;
+            }
+
+            var filtered = _allMovies
+                .Where(m => int.TryParse(m.Year, out int year) && year >= minYear && year <= maxYear)
+                .ToList();
+
+            _filteredMovies = new ObservableCollection<MovieSearchResult>(filtered);
+            MovieCollectionView.ItemsSource = _filteredMovies;
         }
     }
 }

@@ -72,6 +72,32 @@
                     </Picker>
                 </StackLayout>
 
+                <StackLayout x:Name="YearFilterLayout"
+                             IsVisible="False"
+                             Spacing="5"
+                             Margin="5,0">
+                    <Label Text="Filter by year (optional):"
+                           FontSize="14"
+                           TextColor="Black" />
+                    <Grid ColumnDefinitions="*,*"
+                            ColumnSpacing="10">
+                        <Entry x:Name="MinYearEntry"
+                               Placeholder="Min year"
+                               Keyboard="Numeric"
+                               TextChanged="OnYearFilterChanged"
+                               BackgroundColor="White"
+                               TextColor="Black"
+                               Grid.Column="0" />
+                        <Entry x:Name="MaxYearEntry"
+                               Placeholder="Max year"
+                               Keyboard="Numeric"
+                               TextChanged="OnYearFilterChanged"
+                               BackgroundColor="White"
+                               TextColor="Black"
+                               Grid.Column="1" />
+                    </Grid>
+                </StackLayout>
+                
                 <Label x:Name="ElapsedLabel"
                        TextColor="Black"
                        FontSize="14"
