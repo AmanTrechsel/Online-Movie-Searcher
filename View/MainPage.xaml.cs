@@ -149,25 +149,22 @@ namespace Online_Movie_Searcher
             }
         }
 
-        private async void SortPicker_SelectedIndexChanged(object sender, EventArgs e)
+        private void SortPicker_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (SortPicker.SelectedItem is string selectedSort)
             {
                 _currentSortOption = selectedSort;
 
-                if (!string.IsNullOrEmpty(_currentSearchTerm))
+                if (_allMovies.Any())
                 {
-                    _currentPage = 1;
-                    _allMovies.Clear();
+                    var sorted = _currentSortOption switch
+                    {
+                        "Year" => _allMovies.AsParallel().OrderBy(m => m.Year),
+                        _ => _allMovies.AsParallel().OrderBy(m => m.Title)
+                    };
 
-                    string apiKey = await MovieService.GetKey();
-                    var movies = await MovieService.GetMovieDataAsync(apiKey, _currentSearchTerm, _currentPage, _currentSortOption);
-
-                    foreach (var movie in movies)
-                        _allMovies.Add(movie);
-
+                    _allMovies = new ObservableCollection<MovieSearchResult>(sorted.ToList());
                     MovieCollectionView.ItemsSource = _allMovies;
-                    LoadMoreButton.IsVisible = movies.Count == 10;
                 }
             }
         }
