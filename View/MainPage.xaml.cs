@@ -14,7 +14,7 @@ namespace Online_Movie_Searcher
         private string _currentSortOption = "Title";
         private SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
         private double _currentScrollPosition = 0;
-        private List<string> searchHistory = new();
+        private SearchHistory searchHistory = new();
         private int _results = 0;
 
         private ObservableCollection<MovieSearchResult> _filteredMovies = new();
@@ -24,18 +24,16 @@ namespace Online_Movie_Searcher
         public MainPage()
         {
             InitializeComponent();
-            SearchHistoryList.ItemsSource = searchHistory;
+            SearchHistoryList.ItemsSource = searchHistory.GetSearchHistory();
         }
 
         private void SearchBar_Focused(object sender, FocusEventArgs e)
         {
-            // Show search history when focusing the search bar
-            SearchHistoryList.IsVisible = searchHistory.Any();
+            SearchHistoryList.IsVisible = searchHistory.GetSearchHistory().Any();
         }
 
         private void SearchBar_Unfocused(object sender, FocusEventArgs e)
         {
-            // Optionally hide search history when focus is lost
             SearchHistoryList.IsVisible = false;
         }
 
@@ -106,14 +104,8 @@ namespace Online_Movie_Searcher
                     await DisplayAlert("No results", "No movies found for your search.", "OK");
                 }
 
-                if (!searchHistory.Contains(searchTerm))
-                {
-                    searchHistory.Insert(0, searchTerm);
-                }
+                HandleSearchHistory(searchTerm);
 
-                SearchHistoryList.ItemsSource = null;
-                SearchHistoryList.ItemsSource = searchHistory;
-                SearchHistoryList.IsVisible = false;
                 timer.Stop();
                 ElapsedLabel.Text = $"Found {_results} results in {Math.Round(timer.Elapsed.TotalMilliseconds)}ms";
             }
@@ -243,6 +235,15 @@ namespace Online_Movie_Searcher
 
             _filteredMovies = new ObservableCollection<MovieSearchResult>(filtered);
             MovieCollectionView.ItemsSource = _filteredMovies;
+        }
+
+        public void HandleSearchHistory(string searchTerm)
+        {
+            searchHistory.AddSearchToHistory(searchTerm);
+
+            SearchHistoryList.ItemsSource = null;
+            SearchHistoryList.ItemsSource = searchHistory.GetSearchHistory();
+            SearchHistoryList.IsVisible = false;
         }
     }
 }
