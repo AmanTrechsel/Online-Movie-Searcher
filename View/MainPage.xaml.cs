@@ -240,7 +240,7 @@ namespace Online_Movie_Searcher
         public void HandleSearchHistory(string searchTerm)
         {
             searchHistory.AddSearchToHistory(searchTerm);
-
+            
             SearchHistoryList.ItemsSource = null;
             SearchHistoryList.ItemsSource = searchHistory.GetSearchHistory();
             SearchHistoryList.IsVisible = false;

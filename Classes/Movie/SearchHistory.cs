@@ -9,6 +9,7 @@ namespace Online_Movie_Searcher.Classes.Movie
     internal class SearchHistory
     {
         private List<string> searchHistory = new();
+        private readonly object historyLock = new();
 
         public SearchHistory()
         {
@@ -17,7 +18,10 @@ namespace Online_Movie_Searcher.Classes.Movie
 
        public List<string> GetSearchHistory()
         {
-            return searchHistory;
+            lock(historyLock)
+            {
+                return searchHistory;
+            }
         }
 
        public void SetSearchHistory(List<string> list)
@@ -27,9 +31,12 @@ namespace Online_Movie_Searcher.Classes.Movie
 
        public void AddSearchToHistory(string searchTerm)
         {
-            if (!searchHistory.Contains(searchTerm))
+            lock(historyLock)
             {
-                searchHistory.Insert(0, searchTerm);
+                if (!searchHistory.Contains(searchTerm))
+                {
+                    searchHistory.Insert(0, searchTerm);
+                }
             }
         }
     }
