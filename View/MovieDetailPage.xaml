@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Online_Movie_Searcher.View.MovieDetailPage"
+             Title="Film Details"
+             BackgroundColor="#f0f0f0">
+
+    <AbsoluteLayout>
+        <ScrollView
+            AbsoluteLayout.LayoutBounds="0,0,1,1"
+            AbsoluteLayout.LayoutFlags="All">
+            <VerticalStackLayout Padding="20" Spacing="10">
+                <Label x:Name="LabelTitle"
+                       FontSize="24"
+                       FontAttributes="Bold"
+                       TextColor="Black"
+                       HorizontalOptions="Center" />
+
+                <Image x:Name="ImagePoster"
+                       WidthRequest="200"
+                       HeightRequest="300"
+                       Aspect="AspectFit"
+                       HorizontalOptions="Center" />
+
+                <StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+                    <Label x:Name="LabelYear"
+                           FontSize="16"
+                           TextColor="Black" />
+                    <Label Text=" - "
+                           FontSize="16"
+                           TextColor="Black" />
+                    <Label x:Name="LabelRuntime"
+                           FontSize="16"
+                           TextColor="Black" />
+                </StackLayout>
+
+                <Label Text="Acteurs:"
+                       FontSize="18"
+                       TextColor="Black"
+                       FontAttributes="Bold" />
+                <Label x:Name="LabelActors"
+                       FontSize="16"
+                       TextColor="Black"/>
+
+                <Label Text="Plot:"
+                       FontSize="18"
+                       TextColor="Black"
+                       FontAttributes="Bold" />
+                <Label x:Name="LabelPlot"
+                       FontSize="16"
+                       TextColor="Black"/>
+
+                <Label Text="Rating:"
+                       FontSize="18"
+                       TextColor="Black"
+                       FontAttributes="Bold" />
+                <Label x:Name="LabelRating"
+                       FontSize="16"
+                       TextColor="Black"/>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <StackLayout
+            x:Name="ActivityIndicatorLayout"
+            IsVisible="False"
+            AbsoluteLayout.LayoutBounds="0,0,1,1"
+            AbsoluteLayout.LayoutFlags="All"
+            BackgroundColor="Gray" Opacity="0.5">
+            <ActivityIndicator
+                x:Name="ActivityIndicator"
+                IsRunning="True"
+                HorizontalOptions="CenterAndExpand"
+                VerticalOptions="CenterAndExpand"
+                Color="Black"/>
+        </StackLayout>
+
+        <Frame
+            Padding="5"
+            CornerRadius="20"
+            HasShadow="True"
+            BackgroundColor="#007ACC"
+            BorderColor="White"
+            AbsoluteLayout.LayoutBounds="10,10,40,40"
+            AbsoluteLayout.LayoutFlags="None">
+            <Frame.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnBackTapped"/>
+            </Frame.GestureRecognizers>
+            <Label Text="←"
+                FontSize="20"
+                FontAttributes="Bold"
+                TextColor="White"
+                HorizontalTextAlignment="Center"
+                VerticalTextAlignment="Center"/>
+        </Frame>
+    </AbsoluteLayout>
+</ContentPage>

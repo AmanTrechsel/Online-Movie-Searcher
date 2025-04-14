@@ -1,0 +1,182 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Online_Movie_Searcher.MainPage"
+             Title="Online Movie Searcher"
+             BackgroundColor="#f0f0f0">
+
+    <AbsoluteLayout>
+        <ScrollView x:Name="ScrollView"
+            AbsoluteLayout.LayoutBounds="0,0,1,1"
+            AbsoluteLayout.LayoutFlags="All">
+            <VerticalStackLayout Padding="15" Spacing="10">
+
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                    <VerticalStackLayout Padding="20">
+                        <Entry x:Name="SearchEntry"
+                               Placeholder="Search by title..."
+                               BackgroundColor="White"
+                               TextColor="Black"
+                               HeightRequest="45"
+                               FontSize="14"
+                               Margin="0"
+                               Focused="SearchBar_Focused"
+                               Unfocused="SearchBar_Unfocused" />
+
+                        <CollectionView x:Name="SearchHistoryList"
+                                        IsVisible="False"
+                                        SelectionMode="Single"
+                                        BackgroundColor="White"
+                                        SelectionChanged="SearchHistoryList_SelectionChanged">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Label Text="{Binding}"
+                                           Padding="10"
+                                           TextColor="DarkSlateGray" />
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+
+                    <Button Text="Search"
+                            Grid.Column="1"
+                            Clicked="SearchMovies"
+                            HeightRequest="45"
+                            Padding="20,0"
+                            BackgroundColor="#007ACC"
+                            TextColor="White"
+                            CornerRadius="8" />
+                </Grid>
+
+                <StackLayout Orientation="Horizontal"
+                             HorizontalOptions="Start"
+                             Spacing="5"
+                             Margin="5,0">
+                    <Label Text="Sort by:"
+                           VerticalOptions="Center"
+                           TextColor="Black"
+                           FontSize="14"/>
+                    <Picker x:Name="SortPicker"
+                            SelectedIndexChanged="SortPicker_SelectedIndexChanged"
+                            BackgroundColor="White"
+                            TextColor="Black"
+                            WidthRequest="120"
+                            FontSize="14"
+                            VerticalOptions="Center">
+                        <Picker.ItemsSource>
+                            <x:Array Type="{x:Type x:String}">
+                                <x:String>Title</x:String>
+                                <x:String>Year</x:String>
+                            </x:Array>
+                        </Picker.ItemsSource>
+                    </Picker>
+                </StackLayout>
+
+                <StackLayout x:Name="YearFilterLayout"
+                             IsVisible="False"
+                             Spacing="5"
+                             Margin="5,0">
+                    <Label Text="Filter by year (optional):"
+                           FontSize="14"
+                           TextColor="Black" />
+                    <Grid ColumnDefinitions="*,*"
+                            ColumnSpacing="10">
+                        <Entry x:Name="MinYearEntry"
+                               Placeholder="Min year"
+                               Keyboard="Numeric"
+                               TextChanged="OnYearFilterChanged"
+                               BackgroundColor="White"
+                               TextColor="Black"
+                               Grid.Column="0" />
+                        <Entry x:Name="MaxYearEntry"
+                               Placeholder="Max year"
+                               Keyboard="Numeric"
+                               TextChanged="OnYearFilterChanged"
+                               BackgroundColor="White"
+                               TextColor="Black"
+                               Grid.Column="1" />
+                    </Grid>
+                </StackLayout>
+                
+                <Label x:Name="ElapsedLabel"
+                       TextColor="Black"
+                       FontSize="14"
+                       HorizontalOptions="Start"
+                       Margin="5,0"/>
+
+                <!-- Movie grid -->
+                <CollectionView x:Name="MovieCollectionView"
+                                Margin="0"
+                                VerticalOptions="FillAndExpand"
+                                SelectionMode="None">
+
+                    <CollectionView.ItemsLayout>
+                        <GridItemsLayout Orientation="Vertical"
+                                         Span="{OnIdiom Default=2, Tablet=3, Desktop=3}"
+                                         HorizontalItemSpacing="10"
+                                         VerticalItemSpacing="10" />
+                    </CollectionView.ItemsLayout>
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Frame Padding="5"
+                                   CornerRadius="10"
+                                   HasShadow="True"
+                                   BackgroundColor="White"
+                                   Margin="5">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnMovieTapped" CommandParameter="{Binding imdbID}" />
+                                </Frame.GestureRecognizers>
+
+                                <VerticalStackLayout HorizontalOptions="Center" Spacing="5">
+                                    <Image Source="{Binding Poster}"
+                                           WidthRequest="140"
+                                           HeightRequest="200"
+                                           Aspect="AspectFill" />
+
+                                    <Label Text="{Binding Title}"
+                                           FontAttributes="Bold"
+                                           FontSize="14"
+                                           TextColor="Black"
+                                           HorizontalTextAlignment="Center"
+                                           LineBreakMode="TailTruncation"
+                                           MaxLines="2"/>
+
+                                    <Label Text="{Binding Year}"
+                                           FontSize="12"
+                                           TextColor="Gray"
+                                           HorizontalTextAlignment="Center"/>
+                                </VerticalStackLayout>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <!-- Load more button -->
+                <Button x:Name="LoadMoreButton"
+                        Text="Load more"
+                        IsVisible="False"
+                        Clicked="LoadMoreResults"
+                        BackgroundColor="#007ACC"
+                        TextColor="White"
+                        CornerRadius="8"
+                        HeightRequest="45"
+                        Margin="0,10,0,20"/>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <StackLayout
+            x:Name="ActivityIndicatorLayout"
+            IsVisible="False"
+            AbsoluteLayout.LayoutBounds="0,0,1,1"
+            AbsoluteLayout.LayoutFlags="All"
+            BackgroundColor="Gray" Opacity="0.5">
+            <ActivityIndicator
+                x:Name="ActivityIndicator"
+                IsRunning="True"
+                HorizontalOptions="CenterAndExpand"
+                VerticalOptions="CenterAndExpand"
+                Color="Black"/>
+        </StackLayout>
+    </AbsoluteLayout>
+</ContentPage>
